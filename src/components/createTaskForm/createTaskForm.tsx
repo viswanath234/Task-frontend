@@ -1,5 +1,4 @@
 import { Input } from "../ui/input";
-import { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -44,24 +43,21 @@ export const CreateTaskForm = () => {
     },
   });
 
-  const { mutate, isSuccess } = useCreateTask();
+  const { mutate } = useCreateTask();
   const queryClient = useQueryClient();
 
   function onSubmit(values: z.infer<typeof CreateTaskSchema>) {
     const dueDate = values.dueDate.toISOString();
     mutate({ ...values, dueDate });
-    queryClient.invalidateQueries({
-      queryKey: ["fetchTasks"],
-      refetchType: "all",
-    });
-  }
-
-  useEffect(() => {
-    if (isSuccess) {
+    onSuccess: () => {
+      // Invalidate and refetch queries after successful mutation
+      queryClient.invalidateQueries({
+        queryKey: ["fetchTasks"],
+      });
       toast("New Task Created");
-    }
-    form.reset();
-  }, [isSuccess]);
+      form.reset();
+    };
+  }
 
   return (
     <div>
